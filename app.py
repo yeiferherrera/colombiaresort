@@ -15,7 +15,7 @@ mongo = PyMongo(app)
 
 @app.route('/V1/AllRooms', methods=['GET'])
 def get_all_hotels():
-'''  hotels = mongo.db.hotels
+  hotels = mongo.db.hotels
   rooms = mongo.db.rooms
   response = []
   responseHotels = []
@@ -45,7 +45,7 @@ def get_all_hotels():
                         "rooms":responseRooms}
 
       )
-'''
+
   response.append({'result' : {
                       "hotel" :"test"}})
   return jsonify(response)
@@ -66,17 +66,17 @@ def get_rooms():
   responseRooms = []
   response = []
   responseHotels = collection_hotels.find_one({'Area_Code' : city_param})
-  
-  for room in collection_rooms.find({"Id_Hotel":responseHotels['Id_Hotel'], "Hosts": hosts_param , "Room_Type" : room_type_param}):
-      
+  for room in collection_rooms.find({"Id_Hotel":responseHotels['Id_Hotel'], "Hosts": int(hosts_param) , "Room_Type" : room_type_param}):
+    
       add = True
       for reserve in collection_reservations.find({"Number_Room": room['Number_Room'], "State": "Active"}):
          
           Arrive_Date = datetime.strptime(reserve['Arrive_Date'], '%Y-%m-%d')
           Leave_Date = datetime.strptime(reserve['Leave_Date'], '%Y-%m-%d')
 
-          if ((Arrive_Date < arrive_date_param < Leave_Date) or (Arrive_Date < leave_date_param < Leave_Date)) :
+          if ((Arrive_Date <= arrive_date_param <= Leave_Date) or (Arrive_Date <= leave_date_param <= Leave_Date)) :
               add = False 
+
 
       if add:
         responseRooms.append({"room_type" : room['Room_Type'],"capacity" :room['Hosts'],"price" :room['Price'],"currency" :responseHotels['Currency'],"room_thumbnail" :room['Room_Thumbnail'],"beds" :{"simple": room['Single_Bed'],"double": room['Double_Bed']}})
@@ -96,13 +96,54 @@ def get_rooms():
 
 @app.route('/V1/reservar', methods=['POST'])
 def add_reserva():
-  collection = mongo.db.hoteles
-  name = request.json['name']
-  distance = request.json['distance']
-  star_id = star.insert({'name': name, 'distance': distance})
-  new_star = star.find_one({'_id': star_id })
-  output = {'name' : new_star['name'], 'distance' : new_star['distance']}
-  return jsonify({'result' : output})
+  collection_rooms = mongo.db.rooms
+  collection_reservations = mongo.db.reservations
+
+  arrive_date = request.json['arrive_date']
+  leave_date = request.json['leave_date']
+  room_type = request.json['room_type']
+  capacity = request.json['capacity']
+  simple = request.json['beds']['simple']
+  double = request.json['beds']['double']
+  hotel_id = request.json['hotel_id']
+  doc_type = request.json['user']['doc_type']
+  doc_id = request.json['user']['doc_id']
+  email = request.json['user']['email']
+  phone_number = request.json['user']['phone_number']
+
+  date_arrive_date = datetime.strptime(arrive_date, '%Y-%m-%d')
+  date_leave_date = datetime.strptime(leave_date, '%Y-%m-%d')
+  response = []
+  for room in collection_rooms.find({"Id_Hotel":hotel_id , "Hosts": capacity , "Room_Type" : room_type, "Single_Bed" : simple,"Double_Bed" : double}):
+      
+      add = True
+      for reserve in collection_reservations.find({"Number_Room": room['Number_Room'], "State": "Active"}):
+         
+          Arrive_Date = datetime.strptime(reserve['Arrive_Date'], '%Y-%m-%d')
+          Leave_Date = datetime.strptime(reserve['Leave_Date'], '%Y-%m-%d')
+          response.append({ "room" : room['Number_Room'],"Arrive_DateRes" : Arrive_Date,"date_arrive_date" : date_arrive_date,"Leave_DateRes" : Leave_Date})
+          if ((Arrive_Date <= date_arrive_date <= Leave_Date) or (Arrive_Date <= date_leave_date <= Leave_Date)) :
+              add = False 
+
+
+
+      if add:
+        reserva = collection_reservations.insert(
+        {"Id_Reserva":"CR170002",
+        "State":"Active",
+        "Id_Hotel":hotel_id,
+        "Number_Room":room['Number_Room'],
+        "Arrive_Date":arrive_date,
+        "Leave_Date":leave_date,
+        "Document_Type":doc_type,
+        "Identification":doc_id,
+        "Email":email,
+        "Cell_Phone":phone_number})
+        return jsonify({"reservation_id":"CR170002"})
+        break
+  
+  return jsonify({"message": "Reserva no realizada"})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
