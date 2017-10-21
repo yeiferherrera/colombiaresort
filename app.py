@@ -15,14 +15,14 @@ mongo = PyMongo(app)
 
 @app.route('/V1/AllRooms', methods=['GET'])
 def get_all_hotels():
-  hotels = mongo.db.hotels
+'''  hotels = mongo.db.hotels
   rooms = mongo.db.rooms
   response = []
   responseHotels = []
   responseRooms = []
   
   for hotel in hotels.find():
-    #hotel = hotels.find({Id_hotel: room['Id_Hotel']})
+    hotel = hotels.find({Id_hotel: room['Id_Hotel']})
     for room in rooms.find({"Id_Hotel":hotel['Id_Hotel']}):
       responseRooms.append({"room_type" : room['Room_Type'],
                         "capacity" :room['Hosts'],
@@ -45,9 +45,9 @@ def get_all_hotels():
                         "rooms":responseRooms}
 
       )
-
+'''
   response.append({'result' : {
-                      "hotel" :responseHotels}})
+                      "hotel" :"test"}})
   return jsonify(response)
 
 @app.route('/V1/rooms/', methods=['GET'])
