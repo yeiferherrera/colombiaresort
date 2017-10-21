@@ -67,7 +67,7 @@ def get_rooms():
   response = []
   responseHotels = collection_hotels.find_one({'Area_Code' : city_param})
   for room in collection_rooms.find({"Id_Hotel":responseHotels['Id_Hotel'], "Hosts": int(hosts_param) , "Room_Type" : room_type_param}):
-    
+
       add = True
       for reserve in collection_reservations.find({"Number_Room": room['Number_Room'], "State": "Active"}):
          
@@ -81,7 +81,7 @@ def get_rooms():
       if add:
         responseRooms.append({"room_type" : room['Room_Type'],"capacity" :room['Hosts'],"price" :room['Price'],"currency" :responseHotels['Currency'],"room_thumbnail" :room['Room_Thumbnail'],"beds" :{"simple": room['Single_Bed'],"double": room['Double_Bed']}})
 
-  response.append({"hotel_id" : responseHotels['Id_Hotel'],
+  response = {"hotel_id" : responseHotels['Id_Hotel'],
                         "hotel_name" :responseHotels['Name'],
                         "hotel_location":{"address":responseHotels['Address'],
                                           "lat":responseHotels['Latitude'],
@@ -90,7 +90,7 @@ def get_rooms():
                         "check_in" :responseHotels['Check_In'],
                         "check_out" :responseHotels['Check_Out'],
                         "hotel_website" :responseHotels['Hotel_Website'],
-                        "rooms":responseRooms})
+                        "rooms":responseRooms}
   return jsonify(response)
 
 
