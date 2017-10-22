@@ -5,11 +5,14 @@ from flask import jsonify
 from flask import request
 from flask_pymongo import PyMongo
 from datetime import datetime
+import os
 
 app = Flask(__name__)
 
 app.config['MONGO_DBNAME'] = 'colombiaresort'
-app.config['MONGO_URI'] = 'mongodb://localhost:27017/colombiaresort'
+localhost = 'mongodb://localhost:27017/colombiaresort'
+app.config['MONGO_URI'] = os.environ.get('DB_URI', localhost)
+
 
 mongo = PyMongo(app)
 
@@ -17,12 +20,12 @@ mongo = PyMongo(app)
 def get_all_hotels():
   hotels = mongo.db.hotels
   rooms = mongo.db.rooms
-  response = []
+  
   responseHotels = []
   responseRooms = []
   
   for hotel in hotels.find():
-    hotel = hotels.find({Id_hotel: room['Id_Hotel']})
+    #hotel = hotels.find({Id_hotel: room['Id_Hotel']})
     for room in rooms.find({"Id_Hotel":hotel['Id_Hotel']}):
       responseRooms.append({"room_type" : room['Room_Type'],
                         "capacity" :room['Hosts'],
@@ -45,10 +48,10 @@ def get_all_hotels():
                         "rooms":responseRooms}
 
       )
-
-  response.append({'result' : {
-                      "hotel" :"test"}})
+  response = {'result' : {
+                      "hotel" :responseHotels}}
   return jsonify(response)
+  
 
 @app.route('/V1/rooms/', methods=['GET'])
 def get_rooms():
