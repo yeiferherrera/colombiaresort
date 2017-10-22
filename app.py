@@ -79,8 +79,18 @@ def get_rooms():
 
 
       if add:
-        responseRooms.append({"room_type" : room['Room_Type'],"capacity" :room['Hosts'],"price" :room['Price'],"currency" :responseHotels['Currency'],"room_thumbnail" :room['Room_Thumbnail'],"beds" :{"simple": room['Single_Bed'],"double": room['Double_Bed']}})
-
+        beds = {"simple": room['Single_Bed'],"double": room['Double_Bed']}
+        validator = True
+        for dato in responseRooms:
+          if dato['beds'] == beds :
+            validator = False
+            break
+            pass
+          pass
+        if validator:
+          responseRooms.append({"room_type" : room['Room_Type'],"capacity" :room['Hosts'],"price" :room['Price'],"currency" :responseHotels['Currency'],"room_thumbnail" :room['Room_Thumbnail'],"beds" :{"simple": room['Single_Bed'],"double": room['Double_Bed']}})
+          pass
+        
   response = {"hotel_id" : responseHotels['Id_Hotel'],
                         "hotel_name" :responseHotels['Name'],
                         "hotel_location":{"address":responseHotels['Address'],
