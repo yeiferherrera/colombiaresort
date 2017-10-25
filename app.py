@@ -91,7 +91,7 @@ def get_rooms():
             pass
           pass
         if validator:
-          responseRooms.append({"room_type" : room['Room_Type'],"capacity" :room['Hosts'],"price" :room['Price'],"currency" :responseHotels['Currency'],"room_thumbnail" :room['Room_Thumbnail'],"beds" :{"simple": room['Single_Bed'],"double": room['Double_Bed']}})
+          responseRooms.append({"room_type" : room['Room_Type'],"capacity" :room['Hosts'],"price" :room['Price'],"currency" :responseHotels['Currency'],"description":room["Description"],"room_thumbnail" :room['Room_Thumbnail'],"beds" :{"simple": room['Single_Bed'],"double": room['Double_Bed']}})
           pass
         
   response = {"hotel_id" : responseHotels['Id_Hotel'],
@@ -107,7 +107,7 @@ def get_rooms():
   return jsonify(response)
 
 
-@app.route('/V1/reservar', methods=['POST'])
+@app.route('/V1/rooms/reserve', methods=['POST'])
 def add_reserva():
   collection_rooms = mongo.db.rooms
   collection_reservations = mongo.db.reservations
