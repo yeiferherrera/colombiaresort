@@ -5,9 +5,14 @@ from flask import jsonify
 from flask import request
 from flask_pymongo import PyMongo
 from datetime import datetime
+from flask_cors import CORS
 import os
 
 app = Flask(__name__)
+CORS(app)
+#cors = CORS(app, resources={r"/V1/*": {"origins": "*"}})
+
+#CORS(app, resources=r'/V1/*')
 
 app.config['MONGO_DBNAME'] = 'colombiaresort'
 localhost = 'mongodb://localhost:27017/colombiaresort'
